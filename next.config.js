@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export', // Add this line to force static HTML export
     reactStrictMode: true,
     swcMinify: true,
     images: {  // Keep your existing images configuration
