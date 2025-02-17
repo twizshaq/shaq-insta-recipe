@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("query");
@@ -50,32 +52,21 @@ export async function GET(request: Request) {
 
     const pinterestData = await pinterestResponse.json();
 
-    // --- NEW Debug Log: Inspect the full structure (in development) ---
     console.log("Full Pinterest response:", JSON.stringify(pinterestData, null, 2));
 
-    // Potentially, the structure might have changed; check resource_response?.data
     const pins = pinterestData.resource_response?.data?.results || [];
 
-    // --- NEW Debug Log: Show how many pins we got ---
     console.log("Number of pins returned:", pins.length);
 
-    // --- Minimal filtering: only check if images.orig.url exists ---
     const images = pins
       .filter((pin: any) => Boolean(pin?.images?.orig?.url))
-      .map((pin: any) => {
-        return {
-          url: pin.images.orig.url,
-          alt: pin.description || `${query} recipe`,
-          // Optionally log the pin to see available fields:
-          // pin: pin
-        };
-      });
-
-    // --- No sorting or text-based filters at first ---
-    // If images come back, re-add sorting and text-based checks later.
+      .map((pin: any) => ({
+        url: pin.images.orig.url,
+        alt: pin.description || `${query} recipe`,
+      }));
 
     if (images.length === 0) {
-      console.warn("No valid images found in Pinterest response. Possibly structure changed or filtering is too strict.");
+      console.warn("No valid images found in Pinterest response.");
       return NextResponse.json({
         images: [],
         warning: "No images found. See server logs for debugging info.",
@@ -88,8 +79,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error: "Failed to fetch images",
-        details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
+        details: process.env.NODE_ENV === "development" ? error.message : undefined,
       },
       { status: 500 }
     );
