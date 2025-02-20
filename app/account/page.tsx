@@ -250,7 +250,7 @@ export default function AccountPage() {
                 user_id: userId,
                 created_at: new Date().toISOString(),
                 name: data.name,
-                description: description,
+                description: data.description,
                 ingredients: data.ingredients,
                 instructions: data.instructions,
                 scraped_images: [], // Initialize, will be filled later
